@@ -1,0 +1,14 @@
+# python
+.idea/
+**/__pycache__
+
+# my
+*.exe
+*.dll
+config.json
+
+# release
+build/
+dist/
+*.spec
+*.zip
