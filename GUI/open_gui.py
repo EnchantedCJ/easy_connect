@@ -19,6 +19,7 @@ class MyMainDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
 
         self.ui.lineEdit_ip.setDisabled(True)
+        self.ui.lineEdit_admin.setDisabled(True)
 
         self._buildSignalAndSlot()
         self._ipt_config()
@@ -39,36 +40,31 @@ class MyMainDialog(QtWidgets.QDialog):
             self.ui.comboBox_name.addItems([key])
 
     def _get_info(self):
-        name = self.ui.comboBox_name.currentText()
-        server = self.config['servers'][name]
-        if server['port'] != '':
-            ip_port = server['IP'] + ':' + server['port']
+        self.name = self.ui.comboBox_name.currentText()
+        self.server = self.config['servers'][self.name]
+        self.ip = self.server['IP']
+        if self.server['port'] != '':
+            self.ip_port = self.server['IP'] + ':' + self.server['port']
         else:
-            ip_port = server['IP']
-        users = server['Users']
+            self.ip_port = self.server['IP']
+        self.admin=self.server['admin']
 
-        self.ui.lineEdit_ip.setText(ip_port)
+        self.ui.lineEdit_ip.setText(self.ip_port)
+        self.ui.lineEdit_admin.setText(self.admin)
         self.ui.comboBox_user.clear()
-        for key in users:
+        for key in self.server['Users']:
             self.ui.comboBox_user.addItems([key])
 
     def _connect(self):
-        name = self.ui.comboBox_name.currentText()
-        server = self.config['servers'][name]
-        ip = server['IP']
-        if server['port'] != '':
-            ip_port = server['IP'] + ':' + server['port']
-        else:
-            ip_port = server['IP']
-        username = self.ui.comboBox_user.currentText()
-        password = server['Users'][username]['pass']
+        self.username = self.ui.comboBox_user.currentText()
+        self.password = self.server['Users'][self.username]['pass']
 
-        subprocess.run('cmdkey /generic:TERMSRV/{ip} /user:{username} /pass:{password}'.format(ip=ip,
-                                                                                               username=username,
-                                                                                               password=password),
+        subprocess.run('cmdkey /generic:TERMSRV/{ip} /user:{username} /pass:{password}'.format(ip=self.ip,
+                                                                                               username=self.username,
+                                                                                               password=self.password),
                        shell=False)
-        subprocess.run('mstsc /v:{ip}'.format(ip=ip_port), shell=False)
-        subprocess.run('cmdkey /delete:TERMSRV/{ip}'.format(ip=ip), shell=False)
+        subprocess.run('mstsc /v:{ip}'.format(ip=self.ip_port), shell=False)
+        subprocess.run('cmdkey /delete:TERMSRV/{ip}'.format(ip=self.ip), shell=False)
 
 
 #
