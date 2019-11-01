@@ -25,10 +25,13 @@ class MyMainDialog(QtWidgets.QDialog):
         self._ipt_config()
         self._init_comboBox()
 
+        self.myRemotes = []
+
     # signals and slots
     def _buildSignalAndSlot(self):
         self.ui.comboBox_name.currentTextChanged.connect(self._get_info)
         self.ui.pushButton_connect.clicked.connect(self._connect)
+        self.ui.buttonBox.clicked.connect(self._clear_credentials)
 
     def _ipt_config(self):
         with open('config.json', 'r', encoding='utf-8') as f:
@@ -47,7 +50,7 @@ class MyMainDialog(QtWidgets.QDialog):
             self.ip_port = self.server['IP'] + ':' + self.server['port']
         else:
             self.ip_port = self.server['IP']
-        self.admin=self.server['admin']
+        self.admin = self.server['admin']
 
         self.ui.lineEdit_ip.setText(self.ip_port)
         self.ui.lineEdit_admin.setText(self.admin)
@@ -63,11 +66,12 @@ class MyMainDialog(QtWidgets.QDialog):
                                                                                                username=self.username,
                                                                                                password=self.password),
                        shell=False)
-        subprocess.run('mstsc /v:{ip}'.format(ip=self.ip_port), shell=False)
+        subprocess.Popen('mstsc /v:{ip}'.format(ip=self.ip_port), shell=False)
+        self.myRemotes.append(self.ip_port)
+
+    def _clear_credentials(self):
         subprocess.run('cmdkey /delete:TERMSRV/{ip}'.format(ip=self.ip), shell=False)
 
-
-#
 
 def exec():
     app = QtWidgets.QApplication(sys.argv)
